@@ -178,6 +178,7 @@
   }
 
   el.clearBtn.addEventListener("click", clearInput);
+  el.analyzeBtn.addEventListener("click", executePrediction);
 
   /* --------------------------------------------------------------------------
      3. Preset Prompt Chips
