@@ -1,0 +1,12 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.git
+.gitignore
+.env
+.venv
+venv/
+sentiment_analysis.ipynb
+.pytest_cache
+test_app.py

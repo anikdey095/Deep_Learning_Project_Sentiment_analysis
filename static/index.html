@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moodline — Deep Learning Sentiment & Emotion Intelligence</title>
+  <meta name="description" content="State-of-the-art Bidirectional GRU neural network for real-time multi-class emotion classification across Joy, Sadness, Love, Anger, Fear, and Surprise.">
+
+  <!-- Google Fonts: Outfit, Plus Jakarta Sans, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Dynamic Ambient Mesh Glow Background -->
+  <div class="ambient-glow" id="ambientGlow" aria-hidden="true"></div>
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <div class="app-container">
+
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand">
+        <div class="status-indicator">
+          <span class="status-dot" id="statusDot" title="Connecting..."></span>
+          <span class="pulse-ring"></span>
+        </div>
+        <div class="brand-info">
+          <span class="brand-title">Moodline</span>
+          <span class="brand-version">BiGRU v2.0</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button id="soundToggleBtn" class="pill-btn sound-toggle" title="Toggle audio feedback" aria-label="Toggle audio feedback">
+          <span class="sound-icon" id="soundIcon">🔔</span>
+          <span class="sound-label" id="soundLabel">Audio On</span>
+        </button>
+        <a href="/docs" target="_blank" rel="noopener noreferrer" class="pill-btn docs-btn" title="Open Swagger API documentation">
+          <span>API Docs</span>
+          <span class="ext-arrow">↗</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- Hero Header -->
+      <section class="hero-section">
+        <div class="hero-badge">
+          <span class="sparkle">✨</span>
+          <span>Deep Learning Emotion Recognition</span>
+        </div>
+        <h1 class="hero-title">Discover the emotional pulse behind any sentence.</h1>
+        <p class="hero-subtitle">
+          Powered by a trained Bidirectional GRU neural network with 300D embedding representations, mapping nuances across 6 discrete human affective states.
+        </p>
+      </section>
+
+      <!-- Quick-Try Emotion Prompt Chips -->
+      <section class="presets-section">
+        <span class="section-eyebrow">CLICK TO QUICK-TEST EMOTIONS</span>
+        <div class="preset-chips" id="presetChips">
+          <button class="chip chip-joy" data-text="I just received the greatest news of my life and I can't stop smiling!" data-label="joy">
+            <span class="chip-emoji">😄</span>
+            <span class="chip-label">Joy</span>
+          </button>
+          <button class="chip chip-love" data-text="I cherish every gentle moment we share together, you mean everything to me." data-label="love">
+            <span class="chip-emoji">❤️</span>
+            <span class="chip-label">Love</span>
+          </button>
+          <button class="chip chip-sadness" data-text="I feel completely exhausted, drained, and an empty sadness hangs over me." data-label="sadness">
+            <span class="chip-emoji">😢</span>
+            <span class="chip-label">Sadness</span>
+          </button>
+          <button class="chip chip-anger" data-text="It makes my blood boil when people brazenly betray trust and tell lies!" data-label="anger">
+            <span class="chip-emoji">😠</span>
+            <span class="chip-label">Anger</span>
+          </button>
+          <button class="chip chip-fear" data-text="A cold shiver crept down my spine as darkness engulfed the deserted alley." data-label="fear">
+            <span class="chip-emoji">😨</span>
+            <span class="chip-label">Fear</span>
+          </button>
+          <button class="chip chip-surprise" data-text="I was completely stunned and speechless when everyone leaped out yelling surprise!" data-label="surprise">
+            <span class="chip-emoji">😲</span>
+            <span class="chip-label">Surprise</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Interactive Console Stage -->
+      <section class="console-card">
+        
+        <!-- Orb Reactive Visualizer -->
+        <div class="orb-container">
+          <div class="orb-aura" id="orbAura"></div>
+          <div class="neural-orb" id="neuralOrb">
+            <span class="orb-symbol" id="orbSymbol">✦</span>
+          </div>
+          <span class="orb-status-text" id="orbStatusText">Ready for input</span>
+        </div>
+
+        <!-- Input Console -->
+        <div class="input-container">
+          <div class="textarea-wrapper">
+            <textarea
+              id="textInput"
+              maxlength="2000"
+              placeholder="Express a thought, memory, message, or review to detect emotion..."
+              rows="4"
+              aria-label="Input sentence to analyze"
+            ></textarea>
+            <button id="clearBtn" class="clear-btn" title="Clear text" aria-label="Clear input">✕</button>
+          </div>
+
+          <div class="console-footer">
+            <div class="input-telemetry">
+              <span class="char-pill"><span id="charCount">0</span>/2000 chars</span>
+              <span class="word-pill"><span id="wordCount">0</span> words</span>
+            </div>
+
+            <div class="cta-group">
+              <span class="key-hint">Press <strong>Ctrl</strong> + <strong>Enter</strong></span>
+              <button id="analyzeBtn" class="btn-analyze" disabled>
+                <span class="btn-spinner" aria-hidden="true"></span>
+                <span class="btn-icon">⚡</span>
+                <span class="btn-text">Read Emotion</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="alert-banner error-banner" id="errorBanner" hidden role="alert">
+            <span class="alert-icon">⚠️</span>
+            <span class="alert-text" id="errorText"></span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Prediction Results Showcase -->
+      <section class="result-showcase" id="resultSection" hidden>
+
+        <!-- Primary Detected Emotion Banner -->
+        <div class="primary-result-card">
+          <div class="result-header">
+            <span class="result-tag">PRIMARY DETECTION</span>
+            <span class="latency-badge" id="latencyBadge">⚡ 32 ms</span>
+          </div>
+
+          <div class="emotion-spotlight">
+            <div class="emotion-avatar-wrap">
+              <span class="emotion-avatar" id="emotionAvatar">😄</span>
+            </div>
+            <div class="emotion-meta">
+              <div class="emotion-title-row">
+                <h2 class="emotion-name" id="emotionName">Joy</h2>
+                <span class="confidence-badge" id="confidenceBadge">99.8% match</span>
+              </div>
+              <p class="confidence-bar-label">Model certainty score</p>
+              <div class="confidence-meter-track">
+                <div class="confidence-meter-fill" id="confidenceMeterFill"></div>
+              </div>
+            </div>
+          </div>
+
+          <blockquote class="quoted-sentence">
+            <span class="quote-mark">“</span>
+            <p id="echoedText"></p>
+            <span class="quote-mark">”</span>
+          </blockquote>
+
+          <div class="card-action-bar">
+            <button id="copyBtn" class="pill-btn action-pill" title="Copy prediction details">
+              <span id="copyIcon">📋</span>
+              <span id="copyText">Copy Result</span>
+            </button>
+            <button id="newAnalysisBtn" class="pill-btn action-pill secondary" title="Reset and test another sentence">
+              <span>↻ New Sentence</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Full Emotion Probability Spectrum Breakdown -->
+        <div class="breakdown-card">
+          <div class="breakdown-header">
+            <h3 class="breakdown-title">Probability Spectrum</h3>
+            <span class="breakdown-subtitle">Distribution across 6 affective dimensions</span>
+          </div>
+          <div class="spectrum-bars" id="spectrumBars">
+            <!-- Dynamic Emotion Bars Populated by JavaScript -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Session History Drawer -->
+      <section class="history-section" id="historySection" hidden>
+        <div class="history-header">
+          <span class="section-eyebrow">SESSION HISTORY</span>
+          <button id="clearHistoryBtn" class="clear-history-btn">Clear</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <!-- Recent predictions dynamically prepended -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer Bar -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span class="model-stat-pill" id="modelStatusPill">Connecting to neural server…</span>
+        <span class="separator">•</span>
+        <span class="footer-spec">BiGRU Architecture (300D Embeddings, 128 & 64 GRU cells)</span>
+      </div>
+      <div class="footer-right">
+        <span>Trained on <strong>dair-ai/emotion</strong></span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
