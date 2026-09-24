@@ -45,8 +45,26 @@
     clearHistoryBtn: document.getElementById("clearHistoryBtn"),
   };
 
+  // Safe localStorage helper for Edge InPrivate / Tracking Prevention modes
+  function safeGetItem(key, fallback) {
+    try {
+      const v = window.localStorage ? window.localStorage.getItem(key) : null;
+      return v !== null ? v : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function safeSetItem(key, value) {
+    try {
+      if (window.localStorage) {
+        window.localStorage.setItem(key, value);
+      }
+    } catch (e) {}
+  }
+
   let modelReady = false;
-  let audioEnabled = localStorage.getItem("moodline_audio") !== "false";
+  let audioEnabled = safeGetItem("moodline_audio", "true") !== "false";
   let historyItems = [];
   let currentResult = null;
 
@@ -92,16 +110,18 @@
   }
 
   function updateAudioUI() {
-    el.soundIcon.textContent = audioEnabled ? "🔔" : "🔕";
-    el.soundLabel.textContent = audioEnabled ? "Audio On" : "Muted";
+    if (el.soundIcon) el.soundIcon.textContent = audioEnabled ? "🔔" : "🔕";
+    if (el.soundLabel) el.soundLabel.textContent = audioEnabled ? "Audio On" : "Muted";
   }
 
-  el.soundToggleBtn.addEventListener("click", () => {
-    audioEnabled = !audioEnabled;
-    localStorage.setItem("moodline_audio", audioEnabled ? "true" : "false");
-    updateAudioUI();
-    if (audioEnabled) playTone(600, 800);
-  });
+  if (el.soundToggleBtn) {
+    el.soundToggleBtn.addEventListener("click", () => {
+      audioEnabled = !audioEnabled;
+      safeSetItem("moodline_audio", audioEnabled ? "true" : "false");
+      updateAudioUI();
+      if (audioEnabled) playTone(600, 800);
+    });
+  }
 
   /* --------------------------------------------------------------------------
      1. Health Check Polling
@@ -120,22 +140,25 @@
         setTimeout(pollHealth, 2500);
       }
     } catch (err) {
+      // Note: Edge or adblockers may block background polling, but predict endpoint still works
       modelReady = false;
-      setServerState("offline", "Reconnecting to server…");
-      setTimeout(pollHealth, 4000);
+      setServerState("offline", "Server connecting / waking up…");
+      setTimeout(pollHealth, 5000);
     }
     syncButton();
   }
 
   function setServerState(status, text) {
-    el.statusDot.className = "status-dot " + (status === "live" ? "" : status);
-    el.modelStatusPill.textContent = text;
-    if (status === "live") {
-      el.orbStatusText.textContent = "Ready for input";
-    } else if (status === "warming") {
-      el.orbStatusText.textContent = "Model warming up…";
-    } else {
-      el.orbStatusText.textContent = "Connecting to server…";
+    if (el.statusDot) el.statusDot.className = "status-dot " + (status === "live" ? "" : status);
+    if (el.modelStatusPill) el.modelStatusPill.textContent = text;
+    if (el.orbStatusText) {
+      if (status === "live") {
+        el.orbStatusText.textContent = "Ready for input";
+      } else if (status === "warming") {
+        el.orbStatusText.textContent = "Model warming up…";
+      } else {
+        el.orbStatusText.textContent = "Connecting to server…";
+      }
     }
   }
 
@@ -143,26 +166,38 @@
      2. Input Telemetry & Handling
      -------------------------------------------------------------------------- */
   function updateInputTelemetry() {
-    const val = el.textInput.value;
+    const val = el.textInput ? el.textInput.value : "";
     const charLen = val.length;
     const words = val.trim().split(/\s+/).filter(Boolean).length;
 
-    el.charCount.textContent = charLen.toLocaleString();
-    el.wordCount.textContent = words.toLocaleString();
-    el.clearBtn.style.display = charLen > 0 ? "flex" : "none";
+    if (el.charCount) el.charCount.textContent = charLen.toLocaleString();
+    if (el.wordCount) el.wordCount.textContent = words.toLocaleString();
+    if (el.clearBtn) el.clearBtn.style.display = charLen > 0 ? "flex" : "none";
 
     syncButton();
   }
 
   function syncButton() {
-    const hasText = el.textInput.value.trim().length > 0;
-    el.analyzeBtn.disabled = !hasText || !modelReady;
+    const val = el.textInput ? el.textInput.value.trim() : "";
+    const hasText = val.length > 0;
+    // Allow clicking as long as text exists (predict request will auto-wake/verify model)
+    if (el.analyzeBtn) {
+      el.analyzeBtn.disabled = !hasText;
+    }
   }
 
-  el.textInput.addEventListener("input", updateInputTelemetry);
+  if (el.textInput) {
+    el.textInput.addEventListener("input", updateInputTelemetry);
 
-  el.textInput.addEventListener("keydown", (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    el.textInput.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        executePrediction();
+      } else if (e.key === "Escape") {
+        clearInput();
+      }
+    });
+  }
       e.preventDefault();
       executePrediction();
     } else if (e.key === "Escape") {
@@ -198,8 +233,8 @@
      4. Prediction Pipeline
      -------------------------------------------------------------------------- */
   async function executePrediction() {
-    const rawText = el.textInput.value.trim();
-    if (!rawText || !modelReady) return;
+    const rawText = el.textInput ? el.textInput.value.trim() : "";
+    if (!rawText) return;
 
     hideError();
     startThinking();
@@ -218,6 +253,8 @@
       }
 
       const data = await response.json();
+      modelReady = true;
+      setServerState("live", "BiGRU Neural Net Ready");
       currentResult = data;
       renderPrediction(data, rawText);
       addToHistory(data, rawText);
