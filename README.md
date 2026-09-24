@@ -5,11 +5,24 @@
 [![Keras](https://img.shields.io/badge/Keras-3.0+-D00000.svg?style=flat&logo=Keras&logoColor=white)](https://keras.io)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB.svg?style=flat&logo=Python&logoColor=white)](https://www.python.org)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?style=flat&logo=Docker&logoColor=white)](https://www.docker.com)
-[![Render](https://img.shields.io/badge/Render-Deployable-46E3B7.svg?style=flat&logo=Render&logoColor=white)](https://render.com)
+[![Render](https://img.shields.io/badge/Render-Live%20Demo-46E3B7.svg?style=flat&logo=Render&logoColor=white)](https://moodline-sentiment.onrender.com/)
+[![Status](https://img.shields.io/website?url=https%3A%2F%2Fmoodline-sentiment.onrender.com%2Fhealth&label=Service%20Status)](https://moodline-sentiment.onrender.com/)
 
 **Moodline** is a production-ready, end-to-end Deep Learning and Natural Language Processing (NLP) system designed to detect subtle emotional states embedded within human language. Built on a Bidirectional Gated Recurrent Unit (**BiGRU**) architecture with 300-dimensional embeddings, Moodline categorizes input text into 6 discrete emotion dimensions: **Joy**, **Sadness**, **Love**, **Anger**, **Fear**, and **Surprise**.
 
 Predictions are served in real time via an asynchronous **FastAPI** backend coupled with a modern, glassmorphic dark-mode web console featuring dynamic ambient emotion lighting, live probability spectrum breakdowns, telemetry benchmarking, and optional Web Audio synthesis.
+
+---
+
+## 🚀 Live Web Application
+
+- **Live Application:** [https://moodline-sentiment.onrender.com/](https://moodline-sentiment.onrender.com/)
+- **Interactive Swagger Docs:** [https://moodline-sentiment.onrender.com/docs](https://moodline-sentiment.onrender.com/docs)
+- **ReDoc Documentation:** [https://moodline-sentiment.onrender.com/redoc](https://moodline-sentiment.onrender.com/redoc)
+- **Health Check Endpoint:** [https://moodline-sentiment.onrender.com/health](https://moodline-sentiment.onrender.com/health)
+
+> [!NOTE]
+> Since this project is hosted on Render's free tier, the web service may spin down after periods of inactivity. If accessing after idle time, please allow 30–50 seconds for the initial cold start and neural graph warm-up.
 
 ---
 
@@ -185,6 +198,9 @@ curl http://localhost:8000/health
 ---
 
 ## Cloud Deployment (Render / Railway)
+
+### Live Instance
+- **Production URL:** [https://moodline-sentiment.onrender.com/](https://moodline-sentiment.onrender.com/)
 
 ### 1-Click Render Deployment
 This repository includes a preconfigured `render.yaml` blueprint:

@@ -1,5 +1,10 @@
 import logging
 import os
+
+# Silence TensorFlow verbose logs & disable oneDNN noise
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
 import pickle
 import re
 import time
